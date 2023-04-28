@@ -177,10 +177,10 @@ app.post('/summary', async (req, res) => {
     const logRegex = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s(\w+)\s([\w@.]+)\s\[(.*)\]\s\"GET\s(.*)\.pdf(.*)\sHTTP\/\d.\d\"\s(200)\s(\d+)/;
 
     //Lyckade hämtningar generellt
-    //const logRegex = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}).\s(\w+)\s([\w@.]+)\s\[(.*)\]\s\"GET\s(.*)\sHTTP\/\d.\d\"\s(200)\s(\d+)/;
+    //const logRegex = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s(\w+)\s([\w@.]+)\s\[(.*)\]\s\"GET\s(.*)\sHTTP\/\d.\d\"\s(200)\s(\d+)/;
 
     //Alla försök till hämtningar generellt
-    //const logRegex = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}).\s(\w+)\s([\w@.]+)\s\[(.*)\]\s\"GET\s(.*)\sHTTP\/\d.\d\"\s(\d+)\s(\d+)/;
+    //const logRegex = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s(\w+)\s([\w@.]+)\s\[(.*)\]\s\"GET\s(.*)\sHTTP\/\d.\d\"\s(\d+)\s(\d+)/;
     rl.on('line', (line) => {
         const match = logRegex.exec(line);
         //console.log(match)

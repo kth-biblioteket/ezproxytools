@@ -263,9 +263,9 @@
                 xhttp.onload = function () {
                     if (xhttp.status == 401) {  
                     }
-                    location.href = "/smartsign/api/v1"
+                    location.href = "/ezptools"
                 };
-                xhttp.open("POST", "/smartsign/api/v1/logout", true);
+                xhttp.open("POST", "/logout", true);
                 xhttp.setRequestHeader('Content-Type', 'application/json');
                 xhttp.send();
             }
