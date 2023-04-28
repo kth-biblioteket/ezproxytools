@@ -16,6 +16,7 @@ const { exec } = require('child_process');
 const process = require("process");
 const ezpControllers = require('./ezpControllers');
 const socketIo = require("socket.io");
+const cookieParser = require("cookie-parser");
 
 const app = express()
 const port = process.env.PORT
@@ -26,6 +27,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.set("view engine", "ejs");
 app.use(express.static(path.join(__dirname, "public")));
+
+app.use(cookieParser());
 
 //app.use(cors({ origin: '*' }));
 
