@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.4/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.bootstrap5.min.css">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.socket.io/4.4.0/socket.io.min.js"
+        integrity="sha384-1fOn6VtTq3PWwfsOrk45LnYcGosJwzMHv+Xh/Jx5303FVOXzEnw0EpLv30mtjmlj"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
+    <style>
+        body {
+            margin: 0 auto;
+            font-family: "Open Sans", Arial, "Helvetica Neue", helvetica, sans-serif;
+            padding: 0em 20px 20px 20px;
+        }
+
+        body #gradientBorder {
+            height: 6px;
+            background-image: linear-gradient(to left, #005ea4, #5c98c4);
+            margin-top: 10px;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        main .navbar-expand-lg .navbar-nav .nav-link {
+            padding-right: 1rem;
+            padding-left: 0rem;
+        }
+
+        .nav-link {
+            font-size: 1.25rem;
+        }
+
+        .nav-link.active {
+            color: red;
+        }
+
+        .navbar {
+            display: block !important;
+            padding-top: 20px;
+        }
+
+        .navbar-nav {
+            flex: 1
+        }
+
+        .navbar-brand {
+            font-family: "Open Sans", Arial, "Helvetica Neue", helvetica, sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #000;
+            line-height: 1.375;
+            margin-top: 0;
+            margin-bottom: 0;
+            height: auto;
+            max-width: calc(100% - 136px);
+            position: relative;
+            top: -5px;
+        }
+
+        .navbar-brand img {
+            margin: 0 30px 0 0;
+        }
+
+        .wrap {
+            width: 270px;
+            height: 475px;
+            padding: 0;
+            overflow: hidden;
+            border: 1px solid #888888;
+        }
+
+        .frame {
+            width: 1080px;
+            height: 1920px;
+            border: 0;
+            -ms-transform: scale(0.25);
+            -moz-transform: scale(0.25);
+            -o-transform: scale(0.25);
+            -webkit-transform: scale(0.25);
+            transform: scale(0.25);
+
+            -ms-transform-origin: 0 0;
+            -moz-transform-origin: 0 0;
+            -o-transform-origin: 0 0;
+            -webkit-transform-origin: 0 0;
+            transform-origin: 0 0;
+        }
+
+        .header {
+            z-index: 10;
+            display: flex;
+            flex-direction: row;
+            background-color: #ffffff;
+            padding: 10px;
+        }
+
+        #content {
+            z-index: 1;
+            padding: 10px;
+            display: flex;
+        }
+
+        #logfile {
+            width: 100%;
+        }
+
+        h2 {
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
+            <a class="navbar-brand" href="#">
+                <img alt="" src="https://apps.lib.kth.se/polopoly/KTH_Logotyp.svg" width="75" height="75"
+                    class="d-inline-block align-top"> KTH Bibliotekets EZproxy Verktyg
+            </a>
+            <button aria-controls="basic-navbar-nav" type="button" aria-label="Toggle navigation"
+                class="navbar-toggler collapsed"><span class="navbar-toggler-icon"></span></button>
+            <div class="navbar-collapse collapse" id="basic-navbar-nav">
+                <div class="navbar-nav">
+                    <div class="nav-item">
+                        <div style="flex:1;font-size:1.25rem">Log-filer</div>
+                    </div>
+                </div>
+
+                <form style="flex:2;display:flex;justify-content:flex-end">
+                    <select id="files">
+                        <% logFiles.forEach((file) => { %>
+                          <option value="<%= file %>"><%= file %></option>
+                        <% }); %>
+                    </select>
+                    <button style="margin-right:10px" type="button" onclick="analyzelogfile()" class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#slogfileModal">
+                                Analysera logfil
+                    </button>
+                    <button type="button" class="btn btn-outline-success" onclick="logout()">Logout</button>
+                </form>
+            </div>
+            <div id="gradientBorder"></div>
+        </nav>
+        <div id="content">
+            <div style="flex:2;padding-right:10px">
+                    <div class="card" style="margin-bottom:10px">
+                        <div class="card-body" style="display:flex;flex-direction:row;padding-bottom:40px">
+                            <div style="visibility:hidden;margin-right:10px" id="pubprogress" class="progress">
+                                <div id="pubprogress-bar" class="progress-bar" role="progressbar" aria-valuenow="0"
+                                    aria-valuemin="0" aria-valuemax="100" style="width:0%">
+                                    <span class="sr-only">0% Complete</span>
+                                </div>
+                            </div>
+                            <div id="status"></div>
+                            <div id="logfile" class="dataTables_wrapper dt-bootstrap5">
+
+                            </div>
+                        </div>
+                    </div>
+                
+            </div>
+            
+        </div>
+        <div class="modal fade" id="logfileModal" tabindex="-1" aria-labelledby="logfileModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="logfileModalLabel">Bildbank</h5>
+                        
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="logfile-body modal-body">
+                        
+
+                    </div>
+                    <div class="modal-footer">
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            function alert(message, type, placeholder) {
+                var alertPlaceholder = document.getElementById(placeholder)
+                var wrapper = document.createElement('div')
+                wrapper.innerHTML = '<div class="alert alert-' + type + ' alert-dismissible" role="alert">' + message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>'
+                alertPlaceholder.append(wrapper)
+                setTimeout(function () {
+                    $(".alert").fadeTo(500, 0).slideUp(500, function(){
+                        $(this).remove(); 
+                    });
+                }, 2000);
+            }
+
+            function analyzelogfile() {
+                $('#logfile').html('')
+                var xhttp = new XMLHttpRequest();
+                xhttp.onload = function () {
+                    if (xhttp.status == 401) {
+                        $('#logfile').html('Fel vid hämtning')
+                    }
+                    $('#logfile').html(xhttp.response)
+
+                    //Sortering för input-fält
+                    $.fn.dataTable.ext.order['dom-text'] = function (settings, col) {
+                        return this.api().column(col, { order: 'index' }).nodes().map(function (td, i) {
+                            return $('input', td).val();
+                        });
+                    }
+
+                    
+                    var QRCodeGeneral = $('#logfileDT').DataTable({
+                        "dom": '<Bplfi<t>>',
+                        "columnDefs": [
+                                                        
+                        ],
+                        "order": [[ 2, 'desc' ]],
+                        buttons: [ {
+                            extend: 'excelHtml5',
+                            autoFilter: true,
+                            filename: 'QRKod_statistik',
+                            sheetName: 'Statistik scannade QR-koder',
+                            exportOptions: {
+                                columns: [ 0, 1, 2]
+                            }
+                        } ]
+                    });
+                    
+                    $(function () {
+                        $('[data-toggle="tooltip"]').tooltip()
+                    })
+                };
+                xhttp.open("POST", "/summary", true);
+                xhttp.setRequestHeader('Content-Type', 'application/json');
+                console.log(document.getElementById('files').value)
+                console.log(JSON.stringify({ "sessionId": thisSessionId }))
+                xhttp.send(JSON.stringify({ "sessionId": thisSessionId, "file":  document.getElementById('files').value}));
+            }
+
+            function logout() {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onload = function () {
+                    if (xhttp.status == 401) {  
+                    }
+                    location.href = "/smartsign/api/v1"
+                };
+                xhttp.open("POST", "/smartsign/api/v1/logout", true);
+                xhttp.setRequestHeader('Content-Type', 'application/json');
+                xhttp.send();
+            }
+
+            function makeProgress(data) {
+                console.log('makeProgress')
+                jsondata = JSON.parse(data)
+                $('#status').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>' + jsondata.message);
+                if (jsondata.progress <= jsondata.total) {
+                    percent = (jsondata.progress / jsondata.total) * 100
+                    $("#pubprogress-bar").css("width", percent.toFixed(2) + "%").text(percent.toFixed(2) + "%");
+                }
+                if (jsondata.progress == jsondata.total && jsondata.total != 0) {
+                    $("#pubprogress").css('visibility', 'hidden')
+                    $("#pubprogress-bar").css("width", "0%").text("0%");
+                    $('#status').html('');
+                }
+                if (jsondata.progress == 0) {
+                    $("#pubprogress").css('visibility', 'visible')
+                }
+            }
+
+            
+
+            const thisSessionId = Math.random().toString(36).substr(2, 9);
+            const socket = io('', { path: "/socket.io" })
+            socket.on("connect", () => {
+
+            });
+            socket.emit('connectInit', thisSessionId);
+            socket.on("analyzeProgress", (data) => {
+                console.log("analyzeProgress SOCKET")
+                console.log(data)
+                makeProgress(data)
+            })
+
+            function copytext(field_id) {
+                var copyText = document.getElementById(field_id);
+                text = $(copyText).val()
+                navigator.clipboard.writeText(text);
+            }
+
+            function showElement(imgFileName) {
+                $('#' + imgFileName).show()
+            }
+
+        </script>
+    </div>
+</body>
+
+</html>
