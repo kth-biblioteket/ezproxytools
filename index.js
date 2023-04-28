@@ -106,14 +106,12 @@ app.get("/", async function (req, res, next) {
     try {
         let verify = await VerifyAdmin(req, res, next)
     } catch(err) {
-        res.render('login', {logindata: {"status":"ok", "message":"login"}})
+        res.render('login', {logindata: {"status": "ok", "message": "login"}})
     }
 });
 
-app.get("/ezptools", async function (req, res, next) {
+app.get("/ezptools", VerifyToken, async function (req, res, next) {
     try {
-        let verify = await VerifyAdmin(req, res, next)
-    } catch(err) {
         fs.readdir(process.env.EZPROXYPATH, (err, files) => {
             if (err) {
               console.error(err);
@@ -122,10 +120,11 @@ app.get("/ezptools", async function (req, res, next) {
                 // Filter the files by their extension
                 const logFiles = files.filter(file => path.extname(file) === '.log');
 
-              res.render('ezptools', { logFiles,logindata: {"status":"ok", "message":"login"} });
+              res.render('ezptools', { logFiles,logindata: {"status": "ok", "message": "login"} });
             }
         });
-        //res.render('ezptools', {logindata: {"status":"ok", "message":"login"}})
+    } catch(err) {
+        res.render('ezptools', {logindata: {"status": "error", "message": err.message}})
     }
 });
 
