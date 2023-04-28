@@ -174,13 +174,13 @@ app.post('/summary', async (req, res) => {
     // 145.14.101.30 Ql3voUxBxWvuinx yueche@kth.se [01/Jul/2021:00:00:03 +0200] "GET https://focus.lib.kth.se:443/login?url=https://pubs.acs.org/doi/10.1021/acs.biochem.7b01248 HTTP/1.1" 302 0
     // IP id username date url status size
     //Lyckade hämtningar pdf
-    //const logRegex = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}).\s(\w+)\s([\w@.]+)\s\[(.*)\]\s\"GET\s(.*)\.pdf\sHTTP\/\d.\d\"\s(200)\s(\d+)/;
+    const logRegex = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s(\w+)\s([\w@.]+)\s\[(.*)\]\s\"GET\s(.*)\.pdf\sHTTP\/\d.\d\"\s(200)\s(\d+)/;
 
     //Lyckade hämtningar generellt
     //const logRegex = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}).\s(\w+)\s([\w@.]+)\s\[(.*)\]\s\"GET\s(.*)\sHTTP\/\d.\d\"\s(200)\s(\d+)/;
 
     //Alla försök till hämtningar generellt
-    const logRegex = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}).\s(\w+)\s([\w@.]+)\s\[(.*)\]\s\"GET\s(.*)\sHTTP\/\d.\d\"\s(\d+)\s(\d+)/;
+    //const logRegex = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}).\s(\w+)\s([\w@.]+)\s\[(.*)\]\s\"GET\s(.*)\sHTTP\/\d.\d\"\s(\d+)\s(\d+)/;
     rl.on('line', (line) => {
         const match = logRegex.exec(line);
         //console.log(match)

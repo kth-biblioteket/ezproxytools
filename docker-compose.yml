@@ -4,6 +4,7 @@ services:
   ezproxytools:
     container_name: ezproxytools
     image: ghcr.io/kth-biblioteket/ezproxytools:main
+    privileged: true
     restart: always
     env_file:
       - .env

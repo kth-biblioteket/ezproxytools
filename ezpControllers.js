@@ -7,7 +7,6 @@ const axios = require('axios')
 async function login(req, res) {
     try {
         const response = await axios.post('https://' + process.env.LDAP_API_URL + 'login', req.body)
-        console.log(response)
         res
         .cookie("jwt", response.data.token, {
             maxAge: 60 * 60 * 24 * 7 * 1000,
