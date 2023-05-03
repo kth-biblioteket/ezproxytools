@@ -153,6 +153,11 @@
                           <option value="<%= file %>"><%= file %></option>
                         <% }); %>
                     </select>
+                    <select id="downloadtype">                        
+                        <option value="pdf_success" selected>Alla hämtade pdf-filer</option>
+                        <option value="all">Alla anropsförsök</option>
+                        <option value="all_success">Alla lyckade anrop</option>
+                    </select>
                     <button style="margin-right:10px" type="button" onclick="analyzelogfile()" class="btn btn-primary" data-bs-toggle="modal"
                             data-bs-target="#slogfileModal">
                                 Analysera logfil
@@ -253,9 +258,11 @@
                 };
                 xhttp.open("POST", "/summary", true);
                 xhttp.setRequestHeader('Content-Type', 'application/json');
-                console.log(document.getElementById('files').value)
-                console.log(JSON.stringify({ "sessionId": thisSessionId }))
-                xhttp.send(JSON.stringify({ "sessionId": thisSessionId, "file":  document.getElementById('files').value}));
+                xhttp.send(JSON.stringify({ 
+                    "sessionId": thisSessionId, 
+                    "file":  document.getElementById('files').value,
+                    "downloadtype": document.getElementById('downloadtype').value
+                }));
             }
 
             function logout() {
@@ -271,7 +278,6 @@
             }
 
             function makeProgress(data) {
-                console.log('makeProgress')
                 jsondata = JSON.parse(data)
                 $('#status').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>' + jsondata.message);
                 if (jsondata.progress <= jsondata.total) {
@@ -297,8 +303,6 @@
             });
             socket.emit('connectInit', thisSessionId);
             socket.on("analyzeProgress", (data) => {
-                console.log("analyzeProgress SOCKET")
-                console.log(data)
                 makeProgress(data)
             })
 
