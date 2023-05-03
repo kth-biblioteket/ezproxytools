@@ -281,7 +281,7 @@
             function makeProgress(data) {
                 jsondata = JSON.parse(data)
                 $('#status').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>' + jsondata.message);
-                if (jsondata.progress <= jsondata.total) {
+                if (jsondata.progress < jsondata.total) {
                     percent = (jsondata.progress / jsondata.total) * 100
                     $("#pubprogress-bar").css("width", percent.toFixed(2) + "%").text("");;
                     $("#progress-percent").text(percent.toFixed(2) + "%")
