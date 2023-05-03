@@ -175,6 +175,7 @@
                                 <span class="sr-only">0% Complete</span>
                             </div>
                         </div>
+                        <div style="visibility:hidden;margin-right:10px" id="progress-percent"></div>
                         <div id="status"></div>
                         <div class="card-body" style="display:flex;flex-direction:row;padding-bottom:40px">
                             
@@ -282,14 +283,17 @@
                 $('#status').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>' + jsondata.message);
                 if (jsondata.progress <= jsondata.total) {
                     percent = (jsondata.progress / jsondata.total) * 100
-                    $("#pubprogress-bar").css("width", percent.toFixed(2) + "%").text(percent.toFixed(2) + "%");
+                    $("#pubprogress-bar").css("width", percent.toFixed(2) + "%");
+                    $("#progress-percent").text(percent.toFixed(2) + "%")
                 }
                 if (jsondata.progress == jsondata.total && jsondata.total != 0) {
                     $("#pubprogress").css('visibility', 'hidden')
-                    $("#pubprogress-bar").css("width", "0%").text("0%");
+                    $("#progress-percent").css('visibility', 'hidden')
+                    $("#pubprogress-bar").css("width", "0%").text("");
                     $('#status').html('');
                 }
                 if (jsondata.progress == 0) {
+                    $("#progress-percent").css('visibility', 'visible')
                     $("#pubprogress").css('visibility', 'visible')
                 }
             }
