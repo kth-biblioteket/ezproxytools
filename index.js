@@ -350,6 +350,7 @@ apiRoutes.post('/', function (req, res, next) {
     var action = req.body.data.action.toLowerCase();
     switch (action) {
         case process.env.ACTIONEVENT:
+            // Scriptanrop
             exec(`${process.env.GITHUB_DEPLOY_SCRIPT} ${process.env.LOGFILE} ${process.env.REPOPATH} ${process.env.EZPROXYPATH} ${process.env.CONFIGFILE} ${process.env.SHIBFILE} ${process.env.STANZAFILE} ${process.env.IPCONFIGFILE}`, (error, stdout, stderr) => {
                 if (error) {
                     console.error(`exec error: ${error}`);
