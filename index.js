@@ -102,6 +102,7 @@ function cmd(...command) {
  * @returns 
  * 
  * Funktion som validerar webhook secret
+ * 
  */
 function validateSignature(body, secret, signature) {
     var hash = crypto.createHmac(process.env.GITHUB_WEBHOOK_HASHALG, secret)
