@@ -22,7 +22,7 @@ current_timestamp_ip_config=$(stat -c %Y ./$IPCONFIGFILE)
 
 if ! git pull origin main | grep -q 'Already up to date'; then
         # Uppdaterades config-filen?
-        if [ $(stat -c %Y ./$CONFIGFILE) -gt $current_timestamp ]; then
+        if [ $(stat -c %Y ./$CONFIGFILE) -gt $current_timestamp_config ]; then
                 cat ./$CONFIGFILE > $EZPROXYPATH/$CONFIGFILE
                 echo "$(date) - $EZPROXYPATH/$CONFIGFILE was updated from repository" >> "./$LOGFILE"
         else
