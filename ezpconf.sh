@@ -17,6 +17,7 @@ cd $REPOPATH
 # chmod 755 ezproxy
 
 current_timestamp_config=$(stat -c %Y ./$CONFIGFILE)
+current_timestamp_shibuser=$(stat -c %Y ./$SHIBFILE)
 current_timestamp_stanza=$(stat -c %Y ./$STANZAFILE)
 current_timestamp_ip_config=$(stat -c %Y ./$IPCONFIGFILE)
 
@@ -30,6 +31,14 @@ if ! git pull origin main | grep -q 'Already up to date'; then
         fi
 
         # Uppdaterades stanza-filen?
+        if [ $(stat -c %Y ./$SHIBFILE) -gt $current_timestamp_shibuser ]; then
+                cat ./$SHIBFILE > $EZPROXYPATH/$SHIBFILE
+                echo "$(date) - $EZPROXYPATH/$SHIBFILE was updated from repository" >> "./$LOGFILE"
+        else
+                echo "$(date) - $EZPROXYPATH/$SHIBFILE was NOT updated from repository" >> "./$LOGFILE"
+        fi
+
+        # Uppdaterades shibuser-filen?
         if [ $(stat -c %Y ./$STANZAFILE) -gt $current_timestamp_stanza ]; then
                 cat ./$STANZAFILE > $EZPROXYPATH/$STANZAFILE
                 echo "$(date) - $EZPROXYPATH/$STANZAFILE was updated from repository" >> "./$LOGFILE"
