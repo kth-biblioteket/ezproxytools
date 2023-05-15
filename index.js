@@ -5,6 +5,7 @@ const VerifyToken = require('./VerifyToken');
 const VerifyAdmin = require('./VerifyAdmin');
 
 const https = require("https");
+
 const fs = require("fs");
 const path = require('path');
 const readline = require('readline');
@@ -21,6 +22,18 @@ const socketIo = require("socket.io");
 const cookieParser = require("cookie-parser");
 
 const app = express()
+
+// Skicka allt till https
+app.use((req, res, next) => {
+    if (!req.secure) {
+      const secureUrl = `https://${req.headers.host}${req.url}`;
+      console.log(secureUrl)
+      return res.redirect(301, secureUrl);
+    }
+    next();
+});
+
+
 const port = process.env.PORT
 const webhook_secret = process.env.WEBHOOK_SECRET
 
@@ -42,12 +55,11 @@ const apiRoutes = express.Router();
 
 app.use('/hook', apiRoutes);
 
-
 const server = https.createServer(
     //Använd ezproxys cert/key
     {
-      key: fs.readFileSync("00000002.key"),
-      cert: fs.readFileSync("00000002.crt"),
+      key: fs.readFileSync(process.env.KEYFILE),
+      cert: fs.readFileSync(process.env.CRTFILE),
     },
     app
   )
@@ -172,25 +184,35 @@ app.post('/summary', async (req, res) => {
         });
         let i = 0
 
-        // create a write stream to write to the CSV file
-        //const ws = fs.createWriteStream('log1.csv');
-        // write the header row to the CSV file
-        //ws.write('ip_address||session_id||email||time_stamp||request||response_status||response_size\n');
-
         // 145.14.101.30 Ql3voUxBxWvuinx yueche@kth.se [01/Jul/2021:00:00:03 +0200] "GET https://focus.lib.kth.se:443/login?url=https://pubs.acs.org/doi/10.1021/acs.biochem.7b01248 HTTP/1.1" 302 0
         // IP id username date url status size
 
         let logRegex
         let downloadheader = ''
         //Lyckade hämtningar pdf
-        if (req.body.downloadtype == 'pdf_success') {
-            logRegex = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s(\w+)\s([\w@.]+)\s\[(.*)\]\s\"GET\s(.*)\.pdf(.*)\sHTTP\/\d.\d\"\s(200)\s(\d+)/;
+        if (req.body.downloadtype == 'pdf_success' && req.body.databases == 'all') {
+            logRegex = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s(\w+)\s([\w@.]+)\s\[(.*)\]\s\"GET\s(.*)pdf(.*)\sHTTP\/\d.\d\"\s(200)\s(\d+)/;
             downloadheader = "PDF Downloads"
         }
 
+        //Lyckade hämtningar pdf för vald databas
+        if (req.body.downloadtype == 'pdf_success' && req.body.databases != 'all') {
+            logRegex = new RegExp(`^(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})\\s(\\w+)\\s([\\w@.]+)\\s\\[(.*)\\]\\s\"GET\\s((.*)${req.body.databases}(.*))pdf(.*)\\sHTTP\\/\\d.\\d\"\\s(200)\\s(\\d+)`);
+            //logRegex = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s(\w+)\s([\w@.]+)\s\[(.*)\]\s\"GET\s((.*)wiley.com(.*))pdf(.*)\sHTTP\/\d.\d\"\s(200)\s(\d+)/;;
+            downloadheader = `PDF Downloads for ${req.body.databases}`
+        }
+
         //Lyckade hämtningar generellt
-        if (req.body.downloadtype == 'all_success') {
-            logRegex = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s(\w+)\s([\w@.]+)\s\[(.*)\]\s\"GET\s(.*)\sHTTP\/\d.\d\"\s(200)\s(\d+)/;
+        if (req.body.downloadtype == 'all_success' && req.body.databases == 'all') {
+            //logRegex = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s(\w+)\s([\w@.]+)\s\[(.*)\]\s\"GET\s(.*)\sHTTP\/\d.\d\"\s(200)\s(\d+)/;
+            logRegex = new RegExp(`^(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})\\s(\\w+)\\s([\\w@.]+)\\s\\[(.*)\\]\\s\"GET\\s(.*)\\sHTTP\\/\\d.\\d\"\\s(200)\\s(\\d+)`);
+            downloadheader = "Alla lyckade anrop"
+        }
+
+        //Lyckade hämtningar generellt
+        if (req.body.downloadtype == 'all_success' && req.body.databases != 'all') {
+            //logRegex = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s(\w+)\s([\w@.]+)\s\[(.*)\]\s\"GET\s(.*)\sHTTP\/\d.\d\"\s(200)\s(\d+)/;
+            logRegex = new RegExp(`^(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})\\s(\\w+)\\s([\\w@.]+)\\s\\[(.*)\\]\\s\"GET\\s((.*)${req.body.databases}(.*))\\sHTTP\\/\\d.\\d\"\\s(200)\\s(\\d+)`);
             downloadheader = "Alla lyckade anrop"
         }
 
@@ -210,8 +232,8 @@ app.post('/summary', async (req, res) => {
                 const username = match[3];        
                 const timestampString = match[4];
                 const url = match[5];
-                const status = match[6];
-                const size = match[7];
+                const status = match[7];
+                const size = match[8];
                 const ipuser = ipaddress + ', ' + username
 
                 //Datum
@@ -238,9 +260,6 @@ app.post('/summary', async (req, res) => {
 
                 // create an array of the variables
                 const data = [ipaddress, id, username, time_, url, status, size];
-
-                // write the components to the CSV file
-                //ws.write(`${ipaddress}||${id}||${username}||${time_}||${url}||${status}||${size}\n`);
                 
 
                 if (!summary[timestamp]) {
@@ -256,20 +275,25 @@ app.post('/summary', async (req, res) => {
                 summary[timestamp][ipaddress] = 0;
                 }
                 */
-            
+                const url_ = new URL(match[5]);
                 if (!summary[timestamp][ipuser]) {
-                    summary[timestamp][ipuser] = 0;
+                    summary[timestamp][ipuser] = {};                    
+                    
+                } else {
+                } 
+
+                if (!summary[timestamp][ipuser][url_.hostname]) {
+                    summary[timestamp][ipuser][url_.hostname] = 0;
                 }
 
-                //summary[timestamp][username]++;
-                
-                //summary[timestamp][ipaddress]++;
-
-                summary[timestamp][ipuser]++;
+                //if(parseInt(size) > 1000) {
+                    summary[timestamp][ipuser][url_.hostname]++;
+                //}
+                //summary[timestamp][ipuser][url_.hostname]++;
             }
             i++
             if (i % (total*0.05).toFixed(0) === 0) {
-                socketInstance.emit('analyzeProgress', `{"type": "log","message": "Hämtar...", "total": ${total}, "progress": ${i}}`);
+                socketInstance.emit('analyzeProgress', `{"type": "log","message": "Hämtar ${i} av ${total}", "total": ${total}, "progress": ${i}}`);
             }
         });
         rl.on('close', () => {
@@ -278,7 +302,8 @@ app.post('/summary', async (req, res) => {
                         <thead>
                             <tr>
                                 <th>Date</th>
-                                <th>Ipaddress, username</th>
+                                <th>Ipaddress - User</th>
+                                <th>database</th>
                                 <th>${downloadheader}</th>
                             </tr>
                         </thead>
@@ -298,15 +323,22 @@ app.post('/summary', async (req, res) => {
                 */
                 for (const ipuser in summary[date]) {
                     const count = summary[date][ipuser];
-                    html += `<tr><td>${date}</td><td>${ipuser}</td><td>${count}</td></tr>`;
+                    //console.log(ipuser)
+                    for(const urlt in summary[date][ipuser]) {
+                        //console.log(urlt)
+                        const count2 = summary[date][ipuser][urlt];
+                    //}
+                        html += `<tr><td>${date}</td><td>${ipuser}</td><td>${urlt} </td><td>${count2}</td></tr>`;
+                    }
                 }
             }
             html += `</tbody>
                         <tfoot>
                             <tr>
-                                <th>Date</th>
-                                <th>Ipaddress, username</th>
-                                <th>${downloadheader}</th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
                             </tr>
                         </tfoot>
                     </table>`;

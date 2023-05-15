@@ -24,6 +24,7 @@
     <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.bootstrap5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/plug-ins/1.13.4/api/sum().js"></script>
     <style>
         body {
             margin: 0 auto;
@@ -158,6 +159,12 @@
                         <option value="all">Alla anropsförsök</option>
                         <option value="all_success">Alla lyckade anrop</option>
                     </select>
+                    <select id="databases">
+                        <option value="all" selected>Alla</option>
+                        <option value="wiley.com">Wiley</option>
+                        <option value="ieee.org">IEEE</option>
+                        <option value="webofscience.com">Web of Science</option>
+                    </select>
                     <button style="margin-right:10px" type="button" onclick="analyzelogfile()" class="btn btn-primary" data-bs-toggle="modal"
                             data-bs-target="#slogfileModal">
                                 Analysera logfil
@@ -241,7 +248,7 @@
                         "columnDefs": [
                                                         
                         ],
-                        "order": [[ 2, 'desc' ]],
+                        "order": [[ 3, 'desc' ]],
                         buttons: [ {
                             extend: 'excelHtml5',
                             autoFilter: true,
@@ -250,7 +257,34 @@
                             exportOptions: {
                                 columns: [ 0, 1, 2]
                             }
-                        } ]
+                        } ],
+                        footerCallback: function (row, data, start, end, display) {
+                            var api = this.api();
+                
+                            // Remove the formatting to get integer data for summation
+                            var intVal = function (i) {
+                                return typeof i === 'string' ? i.replace(/[\$,]/g, '') * 1 : typeof i === 'number' ? i : 0;
+                            };
+                
+                            // Total over all pages
+                            total = api
+                                .column(3)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+                
+                            // Total over this page
+                            pageTotal = api
+                                .column(3, { page: 'current' })
+                                .data()
+                                .reduce(function (a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+                
+                            // Update footer
+                            $(api.column(3).footer()).html(pageTotal + ' (' + total + ' total)');
+                        },
                     });
                     
                     $(function () {
@@ -262,7 +296,8 @@
                 xhttp.send(JSON.stringify({ 
                     "sessionId": thisSessionId, 
                     "file":  document.getElementById('files').value,
-                    "downloadtype": document.getElementById('downloadtype').value
+                    "downloadtype": document.getElementById('downloadtype').value,
+                    "databases": document.getElementById('databases').value
                 }));
             }
 
