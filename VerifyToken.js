@@ -27,38 +27,39 @@ function verifyToken(req, res, next) {
             let response
             try {
                 response = await axios.get('http://' + process.env.LDAP_API_URL + 'account/' + kthaccount + '?token=' + process.env.LDAPAPIKEYREAD, req.body)
-            } catch(err) {
-                res.status(400).send({ auth: false, message: 'General error' + err.message });
-            }
-            if (response.data.ugusers) {
-                if (response.data.ugusers[0].kthPAGroupMembership) {
-                    
-                    let authorized = false;
-                    let authorizedgroupsarray = process.env.AUTHORIZEDGROUPS.split(';')
-                    for (i=0 ; i < authorizedgroupsarray.length; i++) {
-                        if (response.data.ugusers[0].kthPAGroupMembership.indexOf(authorizedgroupsarray[i]) !== -1) {
-                            authorized = true;
-                            break;
+            
+                if (response.data.ugusers) {
+                    if (response.data.ugusers[0].kthPAGroupMembership) {
+                        
+                        let authorized = false;
+                        let authorizedgroupsarray = process.env.AUTHORIZEDGROUPS.split(';')
+                        for (i=0 ; i < authorizedgroupsarray.length; i++) {
+                            if (response.data.ugusers[0].kthPAGroupMembership.indexOf(authorizedgroupsarray[i]) !== -1) {
+                                authorized = true;
+                                break;
+                            }
                         }
-                    }
-                    
-                    if (authorized) {
-                        req.token = jwt.sign({ id: req.userprincipalname }, process.env.SECRET, {
-                            expiresIn: "7d"
-                        });
-                        next();
+                        
+                        if (authorized) {
+                            req.token = jwt.sign({ id: req.userprincipalname }, process.env.SECRET, {
+                                expiresIn: "7d"
+                            });
+                            next();
+                        } else {
+                            res.clearCookie("jwt")
+                            res.render('login',{logindata: {"status":"error", "message":"Not authorized"}})
+                        }
+        
                     } else {
                         res.clearCookie("jwt")
-                        res.render('login',{logindata: {"status":"error", "message":"Not authorized"}})
+                        res.render('login',{logindata: {"status":"error", "message":"No groups in UG"}})
                     }
-    
                 } else {
                     res.clearCookie("jwt")
-                    res.render('login',{logindata: {"status":"error", "message":"No groups in UG"}})
+                    res.render('login',{logindata: {"status":"error", "message":"No user found"}})
                 }
-            } else {
-                res.clearCookie("jwt")
-                res.render('login',{logindata: {"status":"error", "message":"No user found"}})
+            } catch(err) {
+                res.status(400).send({ auth: false, message: 'General error' + err.message });
             }
         });
     } else {
