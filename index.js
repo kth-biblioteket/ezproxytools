@@ -23,17 +23,6 @@ const cookieParser = require("cookie-parser");
 
 const app = express()
 
-// Skicka allt till https
-app.use((req, res, next) => {
-    if (!req.secure) {
-      const secureUrl = `https://${req.headers.host}${req.url}`;
-      console.log(secureUrl)
-      return res.redirect(301, secureUrl);
-    }
-    next();
-});
-
-
 const port = process.env.PORT
 const webhook_secret = process.env.WEBHOOK_SECRET
 
@@ -52,6 +41,15 @@ app.use(cors({
 }));
 
 const apiRoutes = express.Router();
+
+// Skicka allt till https
+app.use((req, res, next) => {
+    if (req.protocol === 'http') {
+        return res.redirect(301, `https://${req.headers.host}${req.url}`);
+    }
+
+    next();
+});
 
 app.use('/hook', apiRoutes);
 
