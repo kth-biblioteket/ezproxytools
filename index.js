@@ -43,7 +43,7 @@ app.use(cors({
 const apiRoutes = express.Router();
 
 // Skicka allt till https
-/*
+
 app.use((req, res, next) => {
     if (req.protocol === 'http') {
         return res.redirect(301, `https://${req.headers.host}${req.url}`);
@@ -51,15 +51,16 @@ app.use((req, res, next) => {
 
     next();
 });
-*/
+
 
 app.use('/hook', apiRoutes);
 
 const server = https.createServer(
-    //Använd ezproxys cert/key
+    //Använd ezproxys cert/key/ca
     {
       key: fs.readFileSync(process.env.KEYFILE),
       cert: fs.readFileSync(process.env.CRTFILE),
+      ca: fs.readFileSync(process.env.CAFILE),
     },
     app
   )
