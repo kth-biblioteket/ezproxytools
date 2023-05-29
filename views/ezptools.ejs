@@ -284,6 +284,7 @@
                 
                             // Update footer
                             $(api.column(3).footer()).html(pageTotal + ' (' + total + ' total)');
+                            $('#status').html('');
                         },
                     });
                     
@@ -326,7 +327,7 @@
                     $("#progress-percent").css('visibility', 'hidden')
                     $("#progress-percent").text("")
                     $("#pubprogress-bar").css("width", "0%").text("");
-                    $('#status').html('');
+                    $('#status').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>' + 'Bearbetar...');
                 }
                 if (jsondata.progress == 0) {
                     $("#progress-percent").css('visibility', 'visible')
