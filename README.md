@@ -1,5 +1,9 @@
 # KTH Bibliotekets EZproxy Verktyg
 
+https://focus.lib.kth.se:9000/ezptools
+
+https://focus.lib.kth.se:9000/hook
+
 ## Webhook som anropas av Github Actions för att Uppdatera EZProxys config.txt
 
 - Anropet verfieras via en "webhook secret" för repositoriet
@@ -25,9 +29,10 @@ docker compose up -d (docker compose pull)
 version: '3.6'
 
 services:
-  webhook-kthb:
-    container_name: webhook-kthb
-    image: ghcr.io/kth-biblioteket/webhook-ezproxy:main
+  ezproxytools:
+    container_name: ezproxytools
+    image: ghcr.io/kth-biblioteket/ezproxytools:main
+    privileged: true
     restart: always
     env_file:
       - .env
@@ -36,6 +41,7 @@ services:
     volumes:
       - /usr/local/ezproxy:/usr/local/ezproxy
       - /usr/local/ezproxyrepo:/usr/local/ezproxyrepo
-      - ./00000002.crt:/app/00000002.crt
-      - ./00000002.key:/app/00000002.key
+      - ./00000020.crt:/app/00000020.crt
+      - ./00000020.key:/app/00000020.key
+      - ./00000020.ca:/app/00000020.ca
 ´´´
