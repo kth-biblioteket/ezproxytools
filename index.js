@@ -376,8 +376,7 @@ app.post("/searchlog", (req, res) => {
 
     const safeFile = path.join(process.env.EZPROXYPATH, req.body.file);
 
-    // Skydda mot shell injection genom att tillåta bara vissa tecken
-    const safeSearch = searchString.replace(/[^a-zA-Z0-9:/._-]/g, "");
+    const safeSearch = searchString
 
     // Kör grep på servern
    const grep = spawn("grep", ["-R", safeSearch, safeFile]);
