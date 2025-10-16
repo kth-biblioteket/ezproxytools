@@ -302,7 +302,7 @@ app.post('/summary', async (req, res) => {
             let html = `<table id="logfileDT" class="table table-striped" style="width:100%">
                         <thead>
                             <tr>
-                                <th>Date</th>
+                                <th>Datum</th>
                                 <th>Ipaddress - User</th>
                                 <th>database</th>
                                 <th>${downloadheader}</th>
