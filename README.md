@@ -45,3 +45,7 @@ services:
       - ./00000020.key:/app/00000020.key
       - ./00000020.ca:/app/00000020.ca
 ´´´
+
+#### ToDo
+- Se till att skriva en detaljerad dokumentation
+- Hantera att KTH-IT centralt ändrar sina certifikatprocesser
