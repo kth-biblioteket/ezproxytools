@@ -374,9 +374,12 @@ app.post("/searchlog", (req, res) => {
         return res.status(400).send({ error: "No search string or log file provided" });
     }
 
+    const safeFile = path.join(process.env.EZPROXYPATH, req.body.file);
+
     // Skydda mot shell injection genom att tillåta bara vissa tecken
     const safeSearch = searchString.replace(/[^a-zA-Z0-9:/._-]/g, "");
-    const safeFile = logFile.replace(/[^a-zA-Z0-9:/._-]/g, "");
+
+    
 
     // Kör grep på servern
     exec(`grep -R "${safeSearch}" "${safeFile}"`, (error, stdout, stderr) => {
