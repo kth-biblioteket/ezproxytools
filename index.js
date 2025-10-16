@@ -395,7 +395,7 @@ app.post("/searchlog", (req, res) => {
             if (code === 1) return res.send("<pre>Inga träffar hittades</pre>");
             if (code !== 0) return res.status(500).send({ error: "Search failed" });
 
-            res.send(`<pre>${output}</pre>`);
+            res.send(`<pre class="logfile-search-content">${output}</pre>`);
         });
     });
 
