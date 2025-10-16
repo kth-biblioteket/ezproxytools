@@ -15,7 +15,7 @@ const cors = require("cors");
 const express = require('express')
 const bodyParser = require('body-parser');
 const crypto = require('crypto');
-const { exec } = require('child_process');
+const { exec, spawn } = require('child_process');
 const process = require("process");
 const ezpControllers = require('./ezpControllers');
 const socketIo = require("socket.io");
@@ -379,20 +379,26 @@ app.post("/searchlog", (req, res) => {
     // Skydda mot shell injection genom att tillåta bara vissa tecken
     const safeSearch = searchString.replace(/[^a-zA-Z0-9:/._-]/g, "");
 
-    
-
     // Kör grep på servern
-    exec(`grep -R "${safeSearch}" "${safeFile}"`, (error, stdout, stderr) => {
-        if (error) {
-        // Om grep inte hittar något returnerar det exit code 1, det är inte ett "fel"
-        if (error.code === 1) return res.send("<pre>No matches found</pre>");
-        console.error(`grep error: ${error.message}`);
-        return res.status(500).send({ error: "Search failed" });
-        }
+   const grep = spawn("grep", ["-R", safeSearch, safeFile]);
 
-        res.send(`<pre>${stdout}</pre>`);
+        let output = "";
+
+        grep.stdout.on("data", (data) => {
+            output += data.toString();
+        });
+
+        grep.stderr.on("data", (data) => {
+            console.error(`grep stderr: ${data}`);
+        });
+
+        grep.on("close", (code) => {
+            if (code === 1) return res.send("<pre>Inga träffar hittades</pre>");
+            if (code !== 0) return res.status(500).send({ error: "Search failed" });
+
+            res.send(`<pre>${output}</pre>`);
+        });
     });
-});
 
 /**
  * Funktion som svarar på vanlig "get"
