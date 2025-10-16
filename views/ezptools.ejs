@@ -146,38 +146,42 @@
             <button aria-controls="basic-navbar-nav" type="button" aria-label="Toggle navigation"
                 class="navbar-toggler collapsed"><span class="navbar-toggler-icon"></span></button>
             <div class="navbar-collapse collapse" id="basic-navbar-nav">
-                <div class="navbar-nav">
-                    <div class="nav-item">
-                        <div style="flex:1;font-size:1.25rem">Log-filer</div>
+                    <div class="navbar-nav me-auto">
+                        <div class="nav-item">
+                            <span class="navbar-text fs-5">Log-filer</span>
+                        </div>
                     </div>
+
+                    <form class="d-flex align-items-center gap-2">
+                        <select id="files" class="form-select">
+                            <% logFiles.forEach((file) => { %>
+                            <option value="<%= file %>"><%= file %></option>
+                            <% }); %>
+                        </select>
+
+                        <select id="downloadtype" class="form-select">
+                            <option value="pdf_success" selected>Alla hämtade pdf-filer</option>
+                            <option value="all">Alla anropsförsök</option>
+                            <option value="all_success">Alla lyckade anrop</option>
+                        </select>
+
+                        <select id="databases" class="form-select">
+                            <option value="all" selected>Alla</option>
+                            <option value="wiley.com">Wiley</option>
+                            <option value="ieee.org">IEEE</option>
+                            <option value="webofscience.com">Web of Science</option>
+                        </select>
+
+                        <button type="button" onclick="analyzelogfile()" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#slogfileModal">
+                            Analysera vald logfil
+                        </button>
+
+                        <input type="text" id="searchString" placeholder="Sök i vald logfil..." class="form-control flex-grow-1" style="min-width:200px; max-width:300px;">
+                        <button type="button" class="btn btn-warning" onclick="searchLogfile()">Sök</button>
+                        <button type="button" class="btn btn-outline-success" onclick="logout()">Logout</button>
+                    </form>
                 </div>
 
-                <form style="flex:2;display:flex;justify-content:flex-end">
-                    <select id="files">
-                        <% logFiles.forEach((file) => { %>
-                          <option value="<%= file %>"><%= file %></option>
-                        <% }); %>
-                    </select>
-                    <select id="downloadtype">                        
-                        <option value="pdf_success" selected>Alla hämtade pdf-filer</option>
-                        <option value="all">Alla anropsförsök</option>
-                        <option value="all_success">Alla lyckade anrop</option>
-                    </select>
-                    <select id="databases">
-                        <option value="all" selected>Alla</option>
-                        <option value="wiley.com">Wiley</option>
-                        <option value="ieee.org">IEEE</option>
-                        <option value="webofscience.com">Web of Science</option>
-                    </select>
-                    <button style="margin-right:10px" type="button" onclick="analyzelogfile()" class="btn btn-primary" data-bs-toggle="modal"
-                            data-bs-target="#slogfileModal">
-                                Analysera vald logfil
-                    </button>
-                    <input type="text" id="searchString" placeholder="Sök i vald logfil..." class="form-control mx-2" style="width:300px">
-                    <button type="button" class="btn btn-warning" onclick="searchLogfile()">Sök</button>
-                    <button type="button" class="btn btn-outline-success" onclick="logout()">Logout</button>
-                </form>
-            </div>
             <div id="gradientBorder"></div>
         </nav>
         <div id="content">
