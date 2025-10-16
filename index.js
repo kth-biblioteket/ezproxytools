@@ -303,8 +303,8 @@ app.post('/summary', async (req, res) => {
                         <thead>
                             <tr>
                                 <th>Datum</th>
-                                <th>Ipaddress - User</th>
-                                <th>database</th>
+                                <th>Ip-adress - Användare</th>
+                                <th>Databas</th>
                                 <th>${downloadheader}</th>
                             </tr>
                         </thead>
@@ -363,6 +363,32 @@ app.post('/summary', async (req, res) => {
         res.json(err.message);
     }
 
+});
+
+app.post("/searchlog", (req, res) => {
+    const searchString = req.body.search;
+    const logFile = req.body.file;
+
+    // Om ingen söksträng skickas, gör ingenting
+    if (!searchString || !logFile) {
+        return res.status(400).send({ error: "No search string or log file provided" });
+    }
+
+    // Skydda mot shell injection genom att tillåta bara vissa tecken
+    const safeSearch = searchString.replace(/[^a-zA-Z0-9:/._-]/g, "");
+    const safeFile = logFile.replace(/[^a-zA-Z0-9:/._-]/g, "");
+
+    // Kör grep på servern
+    exec(`grep -R "${safeSearch}" "${safeFile}"`, (error, stdout, stderr) => {
+        if (error) {
+        // Om grep inte hittar något returnerar det exit code 1, det är inte ett "fel"
+        if (error.code === 1) return res.send("<pre>No matches found</pre>");
+        console.error(`grep error: ${error.message}`);
+        return res.status(500).send({ error: "Search failed" });
+        }
+
+        res.send(`<pre>${stdout}</pre>`);
+    });
 });
 
 /**

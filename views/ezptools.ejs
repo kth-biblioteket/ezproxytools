@@ -171,8 +171,10 @@
                     </select>
                     <button style="margin-right:10px" type="button" onclick="analyzelogfile()" class="btn btn-primary" data-bs-toggle="modal"
                             data-bs-target="#slogfileModal">
-                                Analysera logfil
+                                Analysera vald logfil
                     </button>
+                    <input type="text" id="searchString" placeholder="Sök i vald logfil..." class="form-control mx-2" style="width:300px">
+                    <button type="button" class="btn btn-warning" onclick="searchLogfile()">Sök</button>
                     <button type="button" class="btn btn-outline-success" onclick="logout()">Logout</button>
                 </form>
             </div>
@@ -305,6 +307,54 @@
                     "databases": document.getElementById('databases').value
                 }));
             }
+
+            function searchLogfile() {
+                const file = document.getElementById('files').value;
+                const search = document.getElementById('searchString').value;
+
+                if (!search || !file) {
+                    alert("Välj fil och ange en söksträng", "warning", "status");
+                    return;
+                }
+
+                // Visa progress
+                $('#status').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Söker...');
+
+                var xhttp = new XMLHttpRequest();
+                xhttp.onload = function () {
+                    if (xhttp.status === 200) {
+                        // Visa resultatet i samma div som summary
+                        $('#logfile').html(xhttp.response);
+
+                        // Initiera DataTable om du vill
+                        if ($('#logfileDT').length) {
+                            $('#logfileDT').DataTable({
+                                "order": [[ 0, 'desc' ]],
+                                "dom": 'Bfltip',
+                                buttons: [
+                                    {
+                                        extend: 'excelHtml5',
+                                        filename: 'EZproxy_search_results'
+                                    }
+                                ]
+                            });
+                        }
+
+                        $('#status').html('Sökning klar!');
+                    } else {
+                        $('#logfile').html('Fel vid sökning');
+                        $('#status').html('');
+                    }
+                };
+
+                xhttp.open("POST", "/searchlog", true);
+                xhttp.setRequestHeader('Content-Type', 'application/json');
+                xhttp.send(JSON.stringify({
+                    file: file,
+                    search: search
+                }));
+            }
+
 
             function logout() {
                 var xhttp = new XMLHttpRequest();
