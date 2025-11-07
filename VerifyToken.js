@@ -70,6 +70,7 @@ function verifyToken(req, res, next) {
             }
         });
     } else {
+        console.log("Verifying API Key")
         if (token != process.env.APIKEY) {
             res.clearCookie("jwt")
             res.json({ success: false, message: 'Failed to authenticate token.' });
