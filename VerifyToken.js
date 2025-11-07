@@ -20,6 +20,7 @@ function verifyToken(req, res, next) {
     }
 
     if (req.headers['x-access-token'] || req.cookies.jwt) {
+        console.log("Verifying JWT")
         jwt.verify(token, process.env.SECRET, async function (err, decoded) {
             if (err) {
                 res.clearCookie("jwt")
