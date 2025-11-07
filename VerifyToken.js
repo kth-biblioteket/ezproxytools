@@ -9,9 +9,14 @@ function verifyToken(req, res, next) {
         || req.headers['authorization']
         || req.headers['kth-ug-token']
         || req.cookies.jwt
+    const isApiCall = req.headers['x-api-call'] === 'true';
 
     if (!token)
-        return res.render('login',{logindata: {"status":"ok", "message":"No token"}})
+        if (isApiCall) {
+            return res.status(401).send("Unauthorized");
+        } else {
+            return res.render('login',{logindata: {"status":"ok", "message":"No token"}})
+        }
 
     if (req.headers['x-access-token'] || req.cookies.jwt) {
         jwt.verify(token, process.env.SECRET, async function (err, decoded) {

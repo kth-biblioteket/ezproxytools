@@ -317,6 +317,7 @@
                 };
                 xhttp.open("POST", "/summary", true);
                 xhttp.setRequestHeader('Content-Type', 'application/json');
+                xhttp.setRequestHeader('x-api-call', 'true');
                 xhttp.send(JSON.stringify({ 
                     "sessionId": thisSessionId, 
                     "file":  document.getElementById('files').value,
@@ -366,6 +367,7 @@
 
                 xhttp.open("POST", "/searchlog", true);
                 xhttp.setRequestHeader('Content-Type', 'application/json');
+                xhttp.setRequestHeader('x-api-call', 'true');
                 xhttp.send(JSON.stringify({
                     file: file,
                     search: search
