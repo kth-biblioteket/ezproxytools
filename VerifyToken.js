@@ -72,9 +72,10 @@ function verifyToken(req, res, next) {
     } else {
         console.log("Verifying API Key")
         if (token != process.env.APIKEY) {
-            res.clearCookie("jwt")
+            console.log("Valid API Key")
             res.json({ success: false, message: 'Failed to authenticate token.' });
         } else {
+            console.log("Valid API Key")
             next();
         }
     }
