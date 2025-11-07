@@ -154,7 +154,7 @@ app.post("/login", ezpControllers.login)
 
 app.post("/logout", VerifyToken, ezpControllers.logout)
 
-app.post('/summary', async (req, res) => {
+app.post('/summary', VerifyToken, async (req, res) => {
 
     try {
         const selectedFile = req.body.file;
@@ -173,7 +173,12 @@ app.post('/summary', async (req, res) => {
 
         socketInstance.emit('analyzeProgress', `{"type": "log", "message": "Initierar...", "total": ${total}, "progress": 0}`);
 
-        for await (const _ of readline.createInterface({input: fs.createReadStream(process.env.EZPROXYPATH + '/' + selectedFile), crlfDelay: Infinity})) {
+        const safeFile = path.join(process.env.EZPROXYPATH, path.basename(selectedFile));
+
+        for await (const _ of readline.createInterface({
+            input: fs.createReadStream(safeFile),
+            crlfDelay: Infinity
+        })) {
             lineCount++;
         }
 
@@ -365,7 +370,7 @@ app.post('/summary', async (req, res) => {
 
 });
 
-app.post("/searchlog", (req, res) => {
+app.post("/searchlog", VerifyToken, (req, res) => {
     const searchString = req.body.search;
     const logFile = req.body.file;
 
@@ -374,38 +379,38 @@ app.post("/searchlog", (req, res) => {
         return res.status(400).send({ error: "No search string or log file provided" });
     }
 
-    const safeFile = path.join(process.env.EZPROXYPATH, req.body.file);
+    const safeFile = path.join(process.env.EZPROXYPATH, path.basename(logFile));
 
     const safeSearch = searchString
 
     // Kör grep på servern
-   const grep = spawn("grep", ["-R", safeSearch, safeFile]);
+    const grep = spawn("grep", ["-R", safeSearch, safeFile]);
 
-        let output = "";
+    let output = "";
 
-        grep.stdout.on("data", (data) => {
-            output += data.toString();
-        });
-
-        grep.stderr.on("data", (data) => {
-            console.error(`grep stderr: ${data}`);
-        });
-
-        grep.on("close", (code) => {
-            if (code === 1) return res.send("<pre>Inga träffar hittades</pre>");
-            if (code !== 0) return res.status(500).send({ error: "Search failed" });
-
-            const lines = output.trim().split("\n").filter(line => line.trim() !== "");
-            const count = lines.length;
-
-            res.send(`
-            <div style="margin-bottom:10px;font-weight:bold">
-                Antal träffar: ${count}
-            </div>
-            <pre class="logfile-search-content">${output}</pre>
-        `);
-        });
+    grep.stdout.on("data", (data) => {
+        output += data.toString();
     });
+
+    grep.stderr.on("data", (data) => {
+        console.error(`grep stderr: ${data}`);
+    });
+
+    grep.on("close", (code) => {
+        if (code === 1) return res.send("<pre>Inga träffar hittades</pre>");
+        if (code !== 0) return res.status(500).send({ error: "Search failed" });
+
+        const lines = output.trim().split("\n").filter(line => line.trim() !== "");
+        const count = lines.length;
+
+        res.send(`
+        <div style="margin-bottom:10px;font-weight:bold">
+            Antal träffar: ${count}
+        </div>
+        <pre class="logfile-search-content">${output}</pre>
+    `);
+    });
+});
 
 /**
  * Funktion som svarar på vanlig "get"
