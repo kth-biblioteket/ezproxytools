@@ -20,7 +20,6 @@ function verifyToken(req, res, next) {
     }
 
     if (req.headers['x-access-token'] || req.cookies.jwt) {
-        console.log("Verifying JWT")
         jwt.verify(token, process.env.SECRET, async function (err, decoded) {
             if (err) {
                 res.clearCookie("jwt")
@@ -70,12 +69,9 @@ function verifyToken(req, res, next) {
             }
         });
     } else {
-        console.log("Verifying API Key")
         if (token != process.env.APIKEY) {
-            console.log("Valid API Key")
             res.json({ success: false, message: 'Failed to authenticate token.' });
         } else {
-            console.log("Valid API Key")
             next();
         }
     }
