@@ -26,9 +26,9 @@ En dockerfil plus workflow bygger en image via github actions när repot pushas 
     GITHUB_DEPLOY_SCRIPT=/app/ezpconf.sh
     ACTIONEVENT=ezproxyupdate
     SECRET=xxxxxx
-    KEYFILE=00000022.key
-    CRTFILE=00000022.crt
-    CAFILE=00000022.ca
+    KEYFILE=server.key
+    CRTFILE=server.crt
+    CAFILE=server.ca
     AUTHORIZEDGROUPS=pa.anstallda.T.TR;pa.anstallda.M.MOE
     LOGFILE=ezpconf.log
     REPOPATH=/usr/local/ezproxyrepo
@@ -44,7 +44,7 @@ En dockerfil plus workflow bygger en image via github actions när repot pushas 
 - Skapa där docker-compose-fil, se till att ha rätt version av crt-,key-,ca- filer
 
 ´´´ yml
-version: '3.6'
+vversion: '3.6'
 
 services:
   ezproxytools:
@@ -59,9 +59,9 @@ services:
     volumes:
       - /usr/local/ezproxy:/usr/local/ezproxy
       - /usr/local/ezproxyrepo:/usr/local/ezproxyrepo
-      - ./00000020.crt:/app/00000020.crt
-      - ./00000020.key:/app/00000020.key
-      - ./00000020.ca:/app/00000020.ca
+      - ./server.key:/app/server.key
+      - ./server.crt:/app/server.crt
+      - ./server.ca:/app/server.ca
 ´´´
 Efter varje ny push till repot:
 - Kör docker compose pull (för att hämta rätt package från github)
